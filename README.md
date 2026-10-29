@@ -22,7 +22,7 @@ npm run build
 npm run preview
 ```
 
-- `npm test` runs content-contract, answer-validation, KaTeX, and compatibility checks.
+- `npm test` runs course-content, answer-validation, KaTeX-rendering, and app-runtime contract checks.
 - `npm run build` type-checks the TypeScript/React app and writes the production site to `dist/`.
 - `npm run preview` serves the built site at <http://127.0.0.1:4174>.
 
@@ -53,11 +53,11 @@ The notes mark the Week 11 schedule as tentative and do not establish the quiz's
 - `src/domain/` — answer validation, math tokenization, and TypeScript contracts.
 - `src/components/` — KaTeX text/block rendering, accessible diagrams, and question runner/review.
 - `src/styles.css` — responsive interface and horizontal-scroll cues.
-- `test/` — source/content, answer-format, math-rendering, and legacy-route regression checks.
+- `test/` — course/content, answer-format, math-rendering, and app-runtime contract checks.
 - `dist/` — generated static build; do not edit by hand.
 
-The old `server.js` and `public/index.html` remain for compatibility tests and historical reference; `npm start` now launches Vite and does not serve that legacy page.
+The old custom `server.js`, legacy `public/index.html`, bundled duplicate KaTeX assets, and their server tests have been removed. The previous implementation remains recoverable from Git history. Vite is the only app runtime.
 
 ## Static hosting
 
-Build with `npm run build` and publish the `dist/` directory. On Vercel, use the Vite preset (or Other), build command `npm run build`, and output directory `dist`. There is no backend or `.env` requirement.
+Build with `npm run build` and publish the `dist/` directory. `vercel.json` pins Vercel's build command, Vite framework, and output directory to `dist`. There is no backend or `.env` requirement. A live Vercel deployment has not yet been verified.

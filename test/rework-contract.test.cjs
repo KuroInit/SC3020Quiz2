@@ -94,3 +94,18 @@ test('transfer view advances through multiple reviewed questions before completi
   assert.match(app, /Retry transfer set/);
   assert.match(app, /TRANSFER SET REVIEW/);
 });
+
+test('Vite is the sole app runtime and obsolete server/page artifacts are absent', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const root = path.join(__dirname, '..');
+  const pkg = require('../package.json');
+  const vercel = JSON.parse(fs.readFileSync(path.join(root, 'vercel.json'), 'utf8'));
+  assert.match(pkg.scripts.start, /vite/);
+  assert.equal(vercel.buildCommand, 'npm run build');
+  assert.equal(vercel.framework, 'vite');
+  assert.equal(vercel.outputDirectory, 'dist');
+  for (const obsolete of ['server.js', 'public', path.join('test', 'server.test.js'), 'screenshots']) {
+    assert.equal(fs.existsSync(path.join(root, obsolete)), false, `${obsolete} should be removed`);
+  }
+});
