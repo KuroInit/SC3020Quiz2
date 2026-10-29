@@ -1,0 +1,16 @@
+{
+  "name": "sc3020-quiz2-tutor-node",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local Node.js server for the SC3020 Quiz 2 interactive tutor",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "katex": "0.19.1"
+  }
+}
