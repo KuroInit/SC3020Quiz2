@@ -1,16 +1,29 @@
 {
-  "name": "sc3020-quiz2-tutor-node",
-  "version": "1.0.0",
+  "name": "sc3020-quiz-tutor",
+  "version": "2.0.0",
   "private": true,
-  "description": "Local Node.js server for the SC3020 Quiz 2 interactive tutor",
+  "description": "Static, content-first SC3020 Quiz 2 tutor",
   "engines": {
-    "node": ">=20"
+    "node": ">=20.19"
   },
   "scripts": {
-    "start": "node server.js",
+    "dev": "vite --host 127.0.0.1 --port 4173",
+    "start": "vite --host 127.0.0.1 --port 4173",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host 127.0.0.1 --port 4174",
     "test": "node --test"
   },
   "dependencies": {
-    "katex": "0.19.1"
+    "katex": "0.19.1",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "6.1.2",
+    "typescript": "7.0.2",
+    "vite": "8.3.5",
+    "vitest": "5.0.5"
   }
 }
