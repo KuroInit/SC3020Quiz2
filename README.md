@@ -22,7 +22,7 @@ npm run build
 npm run preview
 ```
 
-- `npm test` runs course-content, answer-validation, KaTeX-rendering, and app-runtime contract checks.
+- `npm test` runs course-content, answer-validation, KaTeX-rendering, theme, and app-runtime contract checks.
 - `npm run build` type-checks the TypeScript/React app and writes the production site to `dist/`.
 - `npm run preview` serves the built site at <http://127.0.0.1:4174>.
 
@@ -35,6 +35,10 @@ npm run preview
 - **Progress:** local attempt history and skill breakdown, with JSON export/import and reset controls.
 
 Progress is browser- and origin-specific; it does not sync between devices. Export a JSON backup if you want to preserve or move it.
+
+## Appearance
+
+The header toggle switches between light and dark themes. On first use, the tutor follows the operating system's color preference; a manual choice is saved in this browser and restored on reload.
 
 ## Math, diagrams, and offline use
 

@@ -4,6 +4,7 @@ import type { AttemptRecord, CourseModule, CourseQuestion } from '../domain/type
 import { Diagram } from '../components/Diagram';
 import { MathBlock, MathText } from '../components/MathText';
 import { QuestionRunner } from '../components/QuestionRunner';
+import { parseThemePreference, resolveTheme, type ThemePreference } from '../domain/theme.mjs';
 
 type Route =
   | { page: 'dashboard' }
@@ -22,7 +23,13 @@ interface ProgressState {
 }
 
 const STORAGE_KEY = 'sc3020-quiz-tutor-progress-v2';
+const THEME_KEY = 'sc3020-theme-preference-v1';
 const blankProgress: ProgressState = { schemaVersion: 1, activeModuleId: modules[0]?.id ?? '', completedModules: [], moduleStatus: {}, attempts: [] };
+
+function readThemePreference(): ThemePreference {
+  try { return parseThemePreference(localStorage.getItem(THEME_KEY)); }
+  catch { return 'system'; }
+}
 
 function readProgress(): ProgressState {
   try {
@@ -73,7 +80,7 @@ function moduleAttemptStats(moduleId: string, attempts: AttemptRecord[]) {
   return { count: rows.length, correct: rows.filter(row => row.correct).length, hints: rows.filter(row => row.hintUsed).length };
 }
 
-function Header({ route, navigate }: { route: Route; navigate: (next: Route) => void }) {
+function Header({ route, navigate, theme, preference, onToggleTheme }: { route: Route; navigate: (next: Route) => void; theme: 'light' | 'dark'; preference: ThemePreference; onToggleTheme: () => void }) {
   const nav: { page: Route['page']; label: string; glyph: string }[] = [
     { page: 'dashboard', label: 'Home', glyph: '⌂' },
     { page: 'practice', label: 'Practice', glyph: '✎' },
@@ -87,6 +94,7 @@ function Header({ route, navigate }: { route: Route; navigate: (next: Route) => 
     <nav className="top-nav" aria-label="Main navigation">
       {nav.map(item => <button key={item.page} className={route.page === item.page ? 'top-nav-item active' : 'top-nav-item'} onClick={() => navigate({ page: item.page } as Route)}><span aria-hidden="true">{item.glyph}</span>{item.label}</button>)}
     </nav>
+    <button className="theme-toggle" type="button" onClick={onToggleTheme} aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`} title={`Theme: ${preference}. Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}><span className="theme-toggle-icon" aria-hidden="true">{theme === 'dark' ? '☀' : '☾'}</span><span className="theme-toggle-label">{theme === 'dark' ? 'Light mode' : 'Dark mode'}</span></button>
     <div className="privacy-badge"><span className="privacy-dot"/> Saved on this device</div>
   </header>;
 }
@@ -328,6 +336,9 @@ function ReferencePage() {
 function App() {
   const [route, setRoute] = useState<Route>(getRoute);
   const [progress, setProgress] = useState<ProgressState>(readProgress);
+  const [themePreference, setThemePreference] = useState<ThemePreference>(readThemePreference);
+  const [systemPrefersDark, setSystemPrefersDark] = useState(() => window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false);
+  const theme = resolveTheme(themePreference, systemPrefersDark);
   const completed = progress.completedModules.length;
 
   useEffect(() => {
@@ -338,6 +349,21 @@ function App() {
   }, []);
 
   useEffect(() => { localStorage.setItem(STORAGE_KEY, JSON.stringify(progress)); }, [progress]);
+  useEffect(() => {
+    const media = window.matchMedia('(prefers-color-scheme: dark)');
+    const sync = (event: MediaQueryListEvent) => setSystemPrefersDark(event.matches);
+    setSystemPrefersDark(media.matches);
+    media.addEventListener('change', sync);
+    return () => media.removeEventListener('change', sync);
+  }, []);
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#111a24' : '#f4f3ef');
+    try {
+      if (themePreference === 'system') localStorage.removeItem(THEME_KEY);
+      else localStorage.setItem(THEME_KEY, themePreference);
+    } catch { /* Theme still works for this page when storage is unavailable. */ }
+  }, [theme, themePreference]);
   useEffect(() => {
     const open = () => {
       if (route.page === 'module') navigate({ ...route, tab: 'checkpoint' });
@@ -385,7 +411,7 @@ function App() {
 
   return <div className="app-shell">
     <Sidebar route={route} progress={progress} navigate={navigate}/>
-    <div className="app-main"><Header route={route} navigate={navigate}/><main id="main-content">{routeContent()}</main><footer className="app-footer"><span>SC3020 Study Desk · Quiz 2 scope</span><span>Progress stays in this browser</span></footer></div>
+    <div className="app-main"><Header route={route} navigate={navigate} theme={theme} preference={themePreference} onToggleTheme={() => setThemePreference(theme === 'dark' ? 'light' : 'dark')}/><main id="main-content">{routeContent()}</main><footer className="app-footer"><span>SC3020 Study Desk · Quiz 2 scope</span><span>Progress stays in this browser</span></footer></div>
     <div className="sr-only" aria-live="polite">{completed} of {modules.length} modules completed</div>
   </div>;
 }

@@ -96,3 +96,10 @@ test('lesson procedure text is not constrained by the step-number badge styles',
   assert.match(styles, /\.step-list li>\.math-text\{[^}]*min-width:0[^}]*flex:1/);
   assert.doesNotMatch(styles, /\.step-list li>span\{/);
 });
+
+test('worked-solution text is not constrained by its numbered badge styles', () => {
+  const styles = fs.readFileSync(path.join(root, 'src', 'styles.css'), 'utf8');
+  assert.ok(styles.includes('.solution-step>span:first-child{'), 'only the first child is the number badge');
+  assert.ok(styles.includes('.solution-step>.math-text{min-width:0;flex:1}'), 'math explanation must receive the remaining width');
+  assert.ok(!styles.includes('.solution-step>span{'), 'the broad span selector constrains the explanation text');
+});
